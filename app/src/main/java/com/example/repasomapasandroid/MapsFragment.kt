@@ -12,10 +12,12 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
+import kotlin.math.log
 
 class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
 
     private lateinit var mMap: GoogleMap
+    private lateinit var databaseHelper: DatabaseHelper
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
@@ -25,6 +27,8 @@ class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
 
         // Notifica cuando el mapa esté listo
         getMapAsync(this)
+
+        databaseHelper = DatabaseHelper(requireContext())
 
         return view
     }
@@ -53,6 +57,12 @@ class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
             )
             (activity as? Comunicador)?.enviarCoordenadas(latLng.latitude, latLng.longitude)
+
+            // Guardar en la BBDD
+            databaseHelper.addLocation(latLng.latitude, latLng.longitude)
+
+            databaseHelper.printAllLocations()
+
         }
 
         // OnMapLongClickListener
@@ -66,8 +76,10 @@ class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
             )
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
             (activity as? Comunicador)?.enviarCoordenadas(latLng.latitude, latLng.longitude)
-        }
 
+            // Guardar en la BBDD
+            databaseHelper.addLocation(latLng.latitude, latLng.longitude)
+        }
 
     }
 }
