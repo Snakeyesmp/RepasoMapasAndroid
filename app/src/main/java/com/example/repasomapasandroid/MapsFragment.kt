@@ -12,7 +12,6 @@ import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.MarkerOptions
-import kotlin.math.log
 
 class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
 
@@ -41,6 +40,13 @@ class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
         mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+
+        // CARGAR DE LA BBDD LOS MARCADORES
+        val locations = databaseHelper.getAllLocations()
+        for (location in locations) {
+            val latLng = LatLng(location.latitude, location.longitude)
+            mMap.addMarker(MarkerOptions().position(latLng).title("Marcador en destino"))
+        }
 
         // OnMapClickListener
         mMap.setOnMapClickListener { latLng ->
@@ -79,6 +85,7 @@ class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
 
             // Guardar en la BBDD
             databaseHelper.addLocation(latLng.latitude, latLng.longitude)
+
         }
 
     }
