@@ -36,7 +36,7 @@ class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
         val sydney = LatLng(-34.0, 151.0)
         mMap.addMarker(MarkerOptions().position(sydney).title("Marker in Sydney"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney))
-        mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+        mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
 
         // OnMapClickListener
         mMap.setOnMapClickListener { latLng ->
@@ -52,6 +52,7 @@ class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
                     .title("Marcador en destino")
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
             )
+            (activity as? Comunicador)?.enviarCoordenadas(latLng.latitude, latLng.longitude)
         }
 
         // OnMapLongClickListener
@@ -64,6 +65,9 @@ class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
                     .snippet("Teléfono: 983989784")
             )
             mMap.moveCamera(CameraUpdateFactory.newLatLng(latLng))
+            (activity as? Comunicador)?.enviarCoordenadas(latLng.latitude, latLng.longitude)
         }
+
+
     }
 }
