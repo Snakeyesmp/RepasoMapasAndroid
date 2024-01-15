@@ -14,11 +14,16 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.content.ContextCompat
 import java.io.ByteArrayOutputStream
 import android.Manifest
+import android.app.NotificationChannel
+import android.app.NotificationManager
+import android.app.PendingIntent
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.IntentFilter
 import android.net.Uri
 import android.os.BatteryManager
+import android.os.Build
+import androidx.core.app.NotificationCompat
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.FragmentManager
 import androidx.fragment.app.FragmentTransaction
@@ -189,6 +194,10 @@ class MainActivity : AppCompatActivity(), Comunicador {
                 reemplazarFragmento(FragmentDatos())
                 true
             }
+            R.id.action_send_notification -> {
+                sendNotification()
+                true
+            }
 
             else -> super.onOptionsItemSelected(item)
         }
@@ -227,6 +236,55 @@ class MainActivity : AppCompatActivity(), Comunicador {
 
         // Realiza la transacción
         transaction.commit()
+    }
+
+    private fun sendNotification() {
+        // Recuperar las últimas coordenadas marcadas de la base de datos
+        val locations = databaseHelper.getAllLocations()
+        val lastLocation = locations.lastOrNull()
+
+
+
+
+        // Crear el texto de la notificación
+        val notificationText = if (lastLocation != null) {
+            "Últimas coordenadas marcadas: Latitud = ${lastLocation.latitude}, Longitud = ${lastLocation.longitude}"
+        } else {
+            "No hay coordenadas marcadas"
+        }
+
+        // Crear una notificación
+        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        val notificationId = 1
+        val channelId = "channel_01"
+
+        // Crear un canal de notificación para Android 8.0 y versiones posteriores
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+            val name = "My notification channel"
+            val importance = NotificationManager.IMPORTANCE_DEFAULT
+            val channel = NotificationChannel(channelId, name, importance)
+            notificationManager.createNotificationChannel(channel)
+        }
+
+        // Crear un intent para abrir la aplicación cuando se toca la notificación
+        val intent = Intent(this, MainActivity::class.java)
+        val pendingIntent = if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT)
+        } else {
+            PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT)
+        }
+
+        // Construir la notificación
+        val notification = NotificationCompat.Builder(this, channelId)
+            .setContentTitle("My Notification")
+            .setSmallIcon(androidx.core.R.drawable.notification_bg)
+            .setContentText(notificationText)
+            .setContentIntent(pendingIntent)
+            .setAutoCancel(true)
+            .build()
+
+        // Enviar la notificación
+        notificationManager.notify(notificationId, notification)
     }
 
 }

@@ -30,6 +30,10 @@
         android:title="Open Data Fragment"
         app:showAsAction="never" />
     <item
+        android:id="@+id/action_send_notification"
+        android:title="Send Notification"
+        app:showAsAction="never" />
+    <item
         android:id="@+id/action_exit"
         android:title="Exit"
         app:showAsAction="never" />
