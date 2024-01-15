@@ -11,6 +11,7 @@ import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
 
 class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
@@ -56,20 +57,33 @@ class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
                 Toast.LENGTH_LONG
             ).show()
 
-            mMap.addMarker(
+            val marker = mMap.addMarker(
                 MarkerOptions()
                     .position(latLng)
                     .title("Marcador en destino")
                     .icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE))
+                    .draggable(true) // Hacer el marcador arrastrable
             )
-            (activity as? Comunicador)?.enviarCoordenadas(latLng.latitude, latLng.longitude)
 
             // Guardar en la BBDD
             databaseHelper.addLocation(latLng.latitude, latLng.longitude)
-
-            databaseHelper.printAllLocations()
-
         }
+
+        mMap.setOnMarkerDragListener(object : GoogleMap.OnMarkerDragListener {
+            override fun onMarkerDragStart(marker: Marker) {
+                // Opcional: hacer algo cuando se empieza a arrastrar el marcador
+            }
+
+            override fun onMarkerDrag(marker: Marker) {
+                // Opcional: hacer algo mientras se está arrastrando el marcador
+            }
+
+            override fun onMarkerDragEnd(marker: Marker) {
+                // Actualizar las coordenadas del marcador en la base de datos
+                val latLng = marker.position
+                databaseHelper.updateLocation(marker.id, latLng.latitude, latLng.longitude)
+            }
+        })
 
         // OnMapLongClickListener
         mMap.setOnMapLongClickListener { latLng ->
@@ -89,4 +103,6 @@ class MapsFragment : SupportMapFragment(), OnMapReadyCallback {
         }
 
     }
+
+
 }

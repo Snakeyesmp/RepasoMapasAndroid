@@ -91,4 +91,15 @@ class DatabaseHelper(context: Context) : SQLiteOpenHelper(context, DATABASE_NAME
         db.close()
     }
 
+    fun updateLocation(id: String, latitude: Double, longitude: Double): Int {
+        val db = this.writableDatabase
+        val contentValues = ContentValues()
+        contentValues.put(KEY_LATITUDE, latitude)
+        contentValues.put(KEY_LONGITUDE, longitude)
+        // Actualizar la fila en la base de datos donde el ID coincide
+        val success = db.update(TABLE_LOCATIONS, contentValues, "$KEY_ID=?", arrayOf(id.toString()))
+        db.close()
+        return success
+    }
+
 }
